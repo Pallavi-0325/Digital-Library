@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Library Management Web App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #add8e6; /* Light blue background */
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    button {
+      padding: 5px 10px;
+    }
+    .message {
+      color: green;
+      margin-top: 15px;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    .controls label,
+    .controls select,
+    .controls input {
+      margin-right: 10px;
+    }
+    #summary {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Library Book Manager</h1>
+
+  <div class="message" id="message"></div>
+
+  <div class="controls">
+    <label for="searchInput">Search:</label>
+    <input type="text" id="searchInput" placeholder="Search by title, author, or genre" />
+
+    <label for="filterGenre">Filter by Genre:</label>
+    <select id="filterGenre">
+      <option value="">All</option>
+    </select>
+
+    <label for="sortOption">Sort by:</label>
+    <select id="sortOption">
+      <option value="">None</option>
+      <option value="title">Title</option>
+      <option value="author">Author</option>
+    </select>
+  </div>
+
+  <h2>Book List</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Total Copies</th>
+        <th>Available Copies</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="bookTableBody"></tbody>
+  </table>
+
+  <div id="summary"></div>
+
+  <script>
+    const books = [
+      { id: "B001", title: "The Great Gatsby", author: "F. Scott Fitzgerald", genre: "Classic", totalCopies: 5, copies: 3 },
+      { id: "B002", title: "To Kill a Mockingbird", author: "Harper Lee", genre: "Classic", totalCopies: 4, copies: 2 },
+      { id: "B003", title: "1984", author: "George Orwell", genre: "Dystopian", totalCopies: 6, copies: 6 },
+      { id: "B004", title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling", genre: "Fantasy", totalCopies: 10, copies: 5 },
+      { id: "B005", title: "The Hobbit", author: "J.R.R. Tolkien", genre: "Fantasy", totalCopies: 7, copies: 1 },
+      // Generated sample books B006 to B050
+      { id: "B006", title: "Book Title 6", author: "Author B", genre: "Classic", totalCopies: 8, copies: 4 },
+      { id: "B007", title: "Book Title 7", author: "Author C", genre: "Fantasy", totalCopies: 3, copies: 3 },
+      { id: "B008", title: "Book Title 8", author: "Author D", genre: "Science Fiction", totalCopies: 9, copies: 7 },
+      { id: "B009", title: "Book Title 9", author: "Author E", genre: "Mystery", totalCopies: 2, copies: 2 },
+      { id: "B010", title: "Book Title 10", author: "Author F", genre: "Biography", totalCopies: 4, copies: 1 },
+      { id: "B011", title: "Book Title 11", author: "Author G", genre: "History", totalCopies: 5, copies: 3 },
+      { id: "B012", title: "Book Title 12", author: "Author H", genre: "Romance", totalCopies: 7, copies: 6 },
+      { id: "B013", title: "Book Title 13", author: "Author I", genre: "Classic", totalCopies: 6, copies: 5 },
+      { id: "B014", title: "Book Title 14", author: "Author J", genre: "Fantasy", totalCopies: 8, copies: 2 },
+      { id: "B015", title: "Book Title 15", author: "Author A", genre: "Science Fiction", totalCopies: 3, copies: 1 },
+      { id: "B016", title: "Book Title 16", author: "Author B", genre: "Mystery", totalCopies: 5, copies: 5 },
+      { id: "B017", title: "Book Title 17", author: "Author C", genre: "Biography", totalCopies: 4, copies: 0 },
+      { id: "B018", title: "Book Title 18", author: "Author D", genre: "History", totalCopies: 7, copies: 4 },
+      { id: "B019", title: "Book Title 19", author: "Author E", genre: "Romance", totalCopies: 6, copies: 6 },
+      { id: "B020", title: "Book Title 20", author: "Author F", genre: "Classic", totalCopies: 8, copies: 5 },
+      { id: "B021", title: "Book Title 21", author: "Author G", genre: "Fantasy", totalCopies: 9, copies: 7 },
+      { id: "B022", title: "Book Title 22", author: "Author H", genre: "Science Fiction", totalCopies: 3, copies: 1 },
+      { id: "B023", title: "Book Title 23", author: "Author I", genre: "Mystery", totalCopies: 4, copies: 2 },
+      { id: "B024", title: "Book Title 24", author: "Author J", genre: "Biography", totalCopies: 5, copies: 4 },
+      { id: "B025", title: "Book Title 25", author: "Author A", genre: "History", totalCopies: 6, copies: 3 },
+      { id: "B026", title: "Book Title 26", author: "Author B", genre: "Romance", totalCopies: 7, copies: 7 },
+      { id: "B027", title: "Book Title 27", author: "Author C", genre: "Classic", totalCopies: 3, copies: 2 },
+      { id: "B028", title: "Book Title 28", author: "Author D", genre: "Fantasy", totalCopies: 8, copies: 6 },
+      { id: "B029", title: "Book Title 29", author: "Author E", genre: "Science Fiction", totalCopies: 9, copies: 4 },
+      { id: "B030", title: "Book Title 30", author: "Author F", genre: "Mystery", totalCopies: 5, copies: 3 },
+      { id: "B031", title: "Book Title 31", author: "Author G", genre: "Biography", totalCopies: 6, copies: 6 },
+      { id: "B032", title: "Book Title 32", author: "Author H", genre: "History", totalCopies: 7, copies: 1 },
+      { id: "B033", title: "Book Title 33", author: "Author I", genre: "Romance", totalCopies: 4, copies: 3 },
+      { id: "B034", title: "Book Title 34", author: "Author J", genre: "Classic", totalCopies: 3, copies: 0 },
+      { id: "B035", title: "Book Title 35", author: "Author A", genre: "Fantasy", totalCopies: 8, copies: 5 },
+      { id: "B036", title: "Book Title 36", author: "Author B", genre: "Science Fiction", totalCopies: 9, copies: 7 },
+      { id: "B037", title: "Book Title 37", author: "Author C", genre: "Mystery", totalCopies: 5, copies: 4 },
+      { id: "B038", title: "Book Title 38", author: "Author D", genre: "Biography", totalCopies: 6, copies: 6 },
+      { id: "B039", title: "Book Title 39", author: "Author E", genre: "History", totalCopies: 7, copies: 5 },
+      { id: "B040", title: "Book Title 40", author: "Author F", genre: "Romance", totalCopies: 4, copies: 2 },
+      { id: "B041", title: "Book Title 41", author: "Author G", genre: "Classic", totalCopies: 3, copies: 1 },
+      { id: "B042", title: "Book Title 42", author: "Author H", genre: "Fantasy", totalCopies: 8, copies: 8 },
+      { id: "B043", title: "Book Title 43", author: "Author I", genre: "Science Fiction", totalCopies: 9, copies: 7 },
+      { id: "B044", title: "Book Title 44", author: "Author J", genre: "Mystery", totalCopies: 5, copies: 3 },
+      { id: "B045", title: "Book Title 45", author: "Author A", genre: "Biography", totalCopies: 6, copies: 6 },
+      { id: "B046", title: "Book Title 46", author: "Author B", genre: "History", totalCopies: 7, copies: 6 },
+      { id: "B047", title: "Book Title 47", author: "Author C", genre: "Romance", totalCopies: 4, copies: 2 },
+      { id: "B048", title: "Book Title 48", author: "Author D", genre: "Classic", totalCopies: 3, copies: 3 },
+      { id: "B049", title: "Book Title 49", author: "Author E", genre: "Fantasy", totalCopies: 8, copies: 6 },
+      { id: "B050", title: "Book Title 50", author: "Author F", genre: "Science Fiction", totalCopies: 9, copies: 7 }
+    ];
+
+    function getUniqueGenres() {
+      const genres = books.map(book => book.genre);
+      return [...new Set(genres)].sort();
+    }
+
+    function populateGenreFilter() {
+      const genreSelect = document.getElementById('filterGenre');
+      genreSelect.innerHTML = '<option value="">All</option>';
+      const genres = getUniqueGenres();
+      genres.forEach(genre => {
+        const option = document.createElement('option');
+        option.value = genre;
+        option.textContent = genre;
+        genreSelect.appendChild(option);
+      });
+    }
+
+    function renderBooks() {
+      const genreFilter = document.getElementById('filterGenre').value.toLowerCase();
+      const sortOption = document.getElementById('sortOption').value;
+      const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+      let filteredBooks = books.filter(book => {
+        return (
+          (!genreFilter || book.genre.toLowerCase() === genreFilter) &&
+          (book.title.toLowerCase().includes(searchText) ||
+           book.author.toLowerCase().includes(searchText) ||
+           book.genre.toLowerCase().includes(searchText))
+        );
+      });
+
+      if (sortOption === 'title') {
+        filteredBooks.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (sortOption === 'author') {
+        filteredBooks.sort((a, b) => a.author.localeCompare(b.author));
+      }
+
+      const tableBody = document.getElementById('bookTableBody');
+      tableBody.innerHTML = '';
+      filteredBooks.forEach(book => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${book.id}</td>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.genre}</td>
+          <td>${book.totalCopies}</td>
+          <td>${book.copies}</td>
+          <td>
+            <button onclick="checkoutBook('${book.id}')" ${book.copies <= 0 ? 'disabled' : ''}>Check Out</button>
+            <button onclick="checkinBook('${book.id}')">Check In</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      updateSummary(filteredBooks);
+    }
+
+    function checkoutBook(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (book && book.copies > 0) {
+        book.copies--;
+        renderBooks();
+        showMessage(`Book "${book.title}" checked out.`);
+      }
+    }
+
+    function checkinBook(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (book && book.copies < book.totalCopies) {
+        book.copies++;
+        renderBooks();
+        showMessage(`Book "${book.title}" checked in.`);
+      }
+    }
+
+    function updateSummary(filteredBooks) {
+      const summaryDiv = document.getElementById('summary');
+      const totalBooks = filteredBooks.reduce((sum, b) => sum + b.totalCopies, 0);
+      const totalAvailable = filteredBooks.reduce((sum, b) => sum + b.copies, 0);
+      summaryDiv.textContent = `Total Books: ${totalBooks} | Available Books: ${totalAvailable}`;
+    }
+
+    function showMessage(msg) {
+      const msgDiv = document.getElementById('message');
+      msgDiv.textContent = msg;
+      setTimeout(() => (msgDiv.textContent = ''), 3000);
+    }
+
+    document.getElementById('filterGenre').addEventListener('change', renderBooks);
+    document.getElementById('sortOption').addEventListener('change', renderBooks);
+    document.getElementById('searchInput').addEventListener('input', renderBooks);
+
+    populateGenreFilter();
+    renderBooks();
+  </script>
+</body>
+</html>
